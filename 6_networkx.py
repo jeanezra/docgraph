@@ -1,7 +1,3 @@
-# Create edge list
-# cut -d$'\t' -f 1-3 uws.txt > uws_weighted_edgelist.txt
-# scp white:~/docgraph/uws_weighted_edgelist.txt .
-# cat uws_weighted_edgelist.txt | sed "1 d" > uws_weighted_edgelist_nohead.txt
 import networkx as nx
 from pandas import DataFrame
 import sys
@@ -21,7 +17,7 @@ def adj_matrix(graph):
     return adj_mtrx
 
 def adj_matrix_df(adj_mtrx):
-    adj_df = DataFrame(adj_mtrx.todense())
+    adj_df = DataFrame(adj_mtrx.todense()).astype(int)
     print adj_df.shape
     return adj_df
 
@@ -35,14 +31,14 @@ def adj_matrix_col(graph,adj_df):
     adj_df.columns = prefixed
     return adj_df
 
-def main(infile):
+def main(infile,outfile):
     start = datetime.now()
     print 'Start: ', start
     graph = read_data(infile)
     adj_mtrx = adj_matrix(graph)
     adj_df = adj_matrix_df(adj_mtrx)
     graph_col = adj_matrix_col(graph,adj_df)
-    graph_col.to_csv('uws_adj_mtrx.txt',sep='\t',index=False,header=True)
+    graph_col.to_csv(outfile,sep='\t',index=False,header=True)
     end = datetime.now()
     print 'End: ', end
     elapsed = end - start
@@ -53,5 +49,5 @@ def main(infile):
 ### MAIN CODE
 if __name__ == "__main__":
     infile = '/home/ayasdi/docgraph/' + sys.argv[1]
-    # uws_weighted_edgelist_nohead.txt
-    main(infile)
+    outfile = '/home/ayasdi/docgraph/' + sys.argv[2]
+    main(infile,outfile)
