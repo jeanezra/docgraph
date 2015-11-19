@@ -13,12 +13,3 @@ A JSON file is created to visualize the data in D3; a delimited file is created 
 2_adjacency_matrix.py
 
 3. Compute social network metrics & other domain-specific variables (e.g. specialty, provider type)
-
-Upper East Side
-Kicked off 11/17 mid-afternoon - Quick Analysis
-Opened 11/18 morning (finished)
-
-Washington Heights
-Kicked off 11/18 10:15am PT - Quick Analysis
-    VNE, L-Infinity Centrality (, Gaussian Density) finished in a few hours
-Witnessed all finished at 11/18 12:45pm PT

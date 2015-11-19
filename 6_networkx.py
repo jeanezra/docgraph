@@ -12,12 +12,13 @@ def read_data(infile):
     return graph
 
 def adj_matrix(graph):
-    adj_mtrx = nx.adjacency_matrix(graph,weight='weight')
+    col_name = graph.nodes()
+    adj_mtrx = nx.to_numpy_matrix(graph,nodelist=col_name,weight='weight',nonedge=0)
     print adj_mtrx
     return adj_mtrx
 
 def adj_matrix_df(adj_mtrx):
-    adj_df = DataFrame(adj_mtrx.todense()).astype(int)
+    adj_df = DataFrame(adj_mtrx).astype(int)
     print adj_df.shape
     return adj_df
 

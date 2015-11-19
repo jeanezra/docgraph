@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 import sys
+from pandas import DataFrame
 
 
 ### FUNCTIONS
@@ -16,19 +17,32 @@ def weight_compute(df,weightfile):
     i = 1
     for chunk in df:
         print i, datetime.now().isoformat()
-        chunk['weight_sum'] = chunk[chunk.columns[0:col_length]].sum(axis=1)
-        chunk['weight_mean'] = chunk[chunk.columns[0:col_length]].mean(axis=1)
-        chunk['weight_median'] = chunk[chunk.columns[0:col_length]].median(axis=1)
-        chunk['weight_min'] = chunk[chunk.columns[0:col_length]].min(axis=1)
-        chunk['weight_max'] = chunk[chunk.columns[0:col_length]].max(axis=1)
-        chunk['weight_std'] = chunk[chunk.columns[0:col_length]].std(axis=1)
+        # Degrees
+        chunk['weight_row_sum'] = chunk[chunk.columns[0:col_length]].sum(axis=1)
+        weight_col_sum = DataFrame(chunk[chunk.columns[0:col_length]].sum(axis=0))
+        weight_col_sum.columns = ['weight_col_sum']
+        weight_col_sum.reset_index(inplace=True)
+        chunk = chunk.join(weight_col_sum)
+        chunk['weight_row_col_sum'] = chunk['weight_row_sum'] + chunk['weight_col_sum']
+        # Degrees row stats
+        chunk['weight_row_mean'] = chunk[chunk.columns[0:col_length]].mean(axis=1)
+        chunk['weight_row_median'] = chunk[chunk.columns[0:col_length]].median(axis=1)
+        chunk['weight_row_min'] = chunk[chunk.columns[0:col_length]].min(axis=1)
+        chunk['weight_row_max'] = chunk[chunk.columns[0:col_length]].max(axis=1)
+        chunk['weight_row_std'] = chunk[chunk.columns[0:col_length]].std(axis=1)
         # chunk['weight_skew'] = chunk[chunk.columns[0:col_length]].skew(axis=1)
         # chunk['weight_kurt'] = chunk[chunk.columns[0:col_length]].kurtosis(axis=1)
         chunk2 = chunk.replace(0,np.nan)
-        chunk2['weight_count'] = chunk2[chunk2.columns[0:col_length]].count(axis=1)
+        # Unique degrees
+        chunk2['weight_row_count'] = chunk2[chunk2.columns[0:col_length]].count(axis=1)
+        weight_col_count = DataFrame(chunk2[chunk2.columns[0:col_length]].count(axis=0))
+        weight_col_count.columns = ['weight_col_count']
+        weight_col_count.reset_index(inplace=True)
+        chunk2 = chunk2.join(weight_col_count[['weight_col_count']])
+        chunk2['weight_row_col_count'] = chunk2['weight_row_count'] + chunk2['weight_col_count']
         chunk3 = chunk2.replace(np.nan,0)
-        weight_stats = chunk3[chunk3.columns[-7:]]
-        print weight_stats.describe()
+        weight_stats = chunk3[chunk3.columns[-12:]]
+        # print weight_stats.describe()
         if i == 1:
             weight_stats.to_csv(weightfile,sep='\t',mode='w',index=False,header=True)
         else:
@@ -36,10 +50,14 @@ def weight_compute(df,weightfile):
         i += 1
 
 def main(infile,weightfile):
+    start = datetime.now()
     print 'Start: ', datetime.now().isoformat()
     df = read_data(infile)
     weight_compute(df,weightfile)
-    print 'End: ', datetime.now().isoformat()
+    end = datetime.now()
+    print 'End: ', end
+    elapsed = end - start
+    print 'Time elapsed:', elapsed
 
 
 

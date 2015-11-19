@@ -1,8 +1,8 @@
 import networkx as nx
-import pandas as pd
 from pandas import DataFrame
 import sys
 from datetime import datetime
+import pandas as pd
 
 
 
@@ -76,7 +76,11 @@ def main(infile,outfile):
     closeness = calc_closeness(graph)
     betweenness = calc_betweenness(graph)
     df = sna_agg(degree,indegree,outdegree,closeness,betweenness)
-    df.to_csv(outfile,sep='\t',index=True,header=True)
+    df.reset_index(inplace=True)
+    col_names = DataFrame(graph.nodes())
+    sorted = pd.merge(col_names,df,how='inner',left_on=0,right_on='source')
+    sorted.set_index(0,inplace=True)
+    df.to_csv(outfile,sep='\t',index=False,header=True)
     end = datetime.now()
     print 'End: ', end
     elapsed = end - start
@@ -87,6 +91,5 @@ def main(infile,outfile):
 ### MAIN CODE
 if __name__ == "__main__":
     infile = '/home/ayasdi/docgraph/' + sys.argv[1]
-    # uws_weighted_edgelist_nohead.txt
     outfile = '/home/ayasdi/docgraph/' + sys.argv[2]
     main(infile,outfile)
